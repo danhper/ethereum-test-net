@@ -1,0 +1,25 @@
+version: '3'
+services:
+  bootnode:
+    image: ethereum/client-go
+    networks: [app_net]
+    volumes:
+      - ./config.json:/etc/config.json
+      - ./data/bootnode:/root/.ethereum
+  geth_node:
+    image: ethereum/client-go
+    networks: [app_net]
+    volumes:
+      - ./config.json:/etc/config.json
+      - ./data/geth_node:/root/.ethereum
+  aleth_node:
+    build: ./aleth-instrumentation
+    networks: [app_net]
+    command: ["--config", "/etc/config.json"]
+    volumes:
+      - ./config.json:/etc/config.json
+      - ./data/aleth_node:/root/.ethereum
+
+networks:
+  app_net:
+    driver: bridge
