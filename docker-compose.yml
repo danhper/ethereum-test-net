@@ -1,25 +1,49 @@
 version: '3'
 services:
   bootnode:
-    image: ethereum/client-go
-    networks: [app_net]
+    build: ./bootnode
+    command: ["-nodekey", "/root/.ethereum/boot.key", "-v5"]
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.10
     volumes:
-      - ./config.json:/etc/config.json
       - ./data/bootnode:/root/.ethereum
+      - ./data/bootnode:/root/logs/
+    ports:
+      - "30301:30301/udp"
   geth_node:
     image: ethereum/client-go
     networks: [app_net]
     volumes:
-      - ./config.json:/etc/config.json
+      - ./geth-config.json:/etc/geth-config.json
       - ./data/geth_node:/root/.ethereum
+    command:
+      - --bootnodes
+      - enode://5e9dde0f33a82c88db837c80b2b25fa13b6a527e184474c1f52fe961234fc84e369d576f009a2b1587c61378c22f4578848b17f845be3a80ca25f36f8f081f73@172.16.238.10:30301
+      - --networkid
+      - "8416"
+    links:
+      - bootnode
   aleth_node:
     build: ./aleth-instrumentation
     networks: [app_net]
-    command: ["--config", "/etc/config.json"]
+    command:
+      - --config
+      - /etc/aleth-config.json
+      - --network-id
+      - "8416"
+      - --peerset
+      - required:enode://5e9dde0f33a82c88db837c80b2b25fa13b6a527e184474c1f52fe961234fc84e369d576f009a2b1587c61378c22f4578848b17f845be3a80ca25f36f8f081f73@172.16.238.10:30301
     volumes:
-      - ./config.json:/etc/config.json
+      - ./aleth-config.json:/etc/aleth-config.json
       - ./data/aleth_node:/root/.ethereum
+    links:
+      - bootnode
 
 networks:
   app_net:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
