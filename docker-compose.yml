@@ -5,7 +5,6 @@ services:
     command:
       - -nodekey
       - /root/.ethereum/boot.key
-      - -v5
       - -addr
       - 172.16.238.10:30301
       - -verbosity
@@ -18,6 +17,7 @@ services:
       - ./data/bootnode:/root/logs/
     ports:
       - "30301:30301/udp"
+
   geth_node:
     image: ethereum/client-go
     networks:
@@ -28,11 +28,12 @@ services:
       - ./data/geth_node:/root/.ethereum
     command:
       - --bootnodes
-      - enode://587b2d08f486131d6125567d6ef286eff6e213b90d0c9bdfcec395f59abf320b4b0462ef694477c0500b5b75cd52b86c3d5c8259e70a248776477307806c1b7e@172.16.238.10:30301
+      - enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
       - --networkid
       - "8416"
     links:
       - bootnode
+
   aleth_node:
     build: ./aleth-instrumentation
     networks:
@@ -44,7 +45,7 @@ services:
       - --network-id
       - "8416"
       - --peerset
-      - required:enode://587b2d08f486131d6125567d6ef286eff6e213b90d0c9bdfcec395f59abf320b4b0462ef694477c0500b5b75cd52b86c3d5c8259e70a248776477307806c1b7e@172.16.238.10:30301
+      - required:enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
     volumes:
       - ./aleth-config.json:/etc/aleth-config.json
       - ./data/aleth_node:/root/.ethereum
