@@ -1,4 +1,33 @@
-version: '3'
+version: '3.4'
+
+x-anchors:
+  geth_config: &geth_config ./geth-config.json:/etc/geth-config.json
+  aleth_config: &aleth_config ./aleth-config.json:/etc/aleth-config.json
+
+  geth_node: &geth_node
+    image: ethereum/client-go
+    command:
+      - --bootnodes
+      - enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
+      - --networkid
+      - "8416"
+    links:
+      - bootnode
+
+  aleth_node: &aleth_node
+    build: ./aleth-instrumentation
+    tty: true
+    command:
+      - --config
+      - /etc/aleth-config.json
+      - --network-id
+      - "8416"
+      - --peerset
+      - required:a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
+    links:
+      - bootnode
+
+
 services:
   bootnode:
     build: ./bootnode
@@ -18,40 +47,32 @@ services:
     ports:
       - "30301:30301/udp"
 
-  geth_node:
-    image: ethereum/client-go
+  geth_node1:
+    <<: *geth_node
+    volumes:
+      - *geth_config
+      - ./data/geth_node1:/root/.ethereum
     networks:
       app_net:
-        ipv4_address: 172.16.238.11
-    volumes:
-      - ./geth-config.json:/etc/geth-config.json
-      - ./data/geth_node:/root/.ethereum
-    command:
-      - --bootnodes
-      - enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
-      - --networkid
-      - "8416"
-    links:
-      - bootnode
+        ipv4_address: 172.16.238.20
 
-  aleth_node:
-    build: ./aleth-instrumentation
+  geth_node2:
+    <<: *geth_node
+    volumes:
+      - *geth_config
+      - ./data/geth_node2:/root/.ethereum
     networks:
       app_net:
-        ipv4_address: 172.16.238.12
-    tty: true
-    command:
-      - --config
-      - /etc/aleth-config.json
-      - --network-id
-      - "8416"
-      - --peerset
-      - required:enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
+        ipv4_address: 172.16.238.21
+
+  aleth_node1:
+    <<: *aleth_node
     volumes:
-      - ./aleth-config.json:/etc/aleth-config.json
-      - ./data/aleth_node:/root/.ethereum
-    links:
-      - bootnode
+      - *aleth_config
+      - ./data/aleth_node1:/root/.ethereum
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.22
 
 networks:
   app_net:
