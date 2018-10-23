@@ -73,6 +73,15 @@ services:
       app_net:
         ipv4_address: 172.16.238.22
 
+  aleth_node2:
+    <<: *aleth_node
+    volumes:
+      - *aleth_config
+      - ./data/aleth_node2:/root/.ethereum
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.23
+
 networks:
   app_net:
     driver: bridge
