@@ -1,15 +1,33 @@
 {
   "config": {
-    "chainId": 0
+    "accountStartNonce": "0x00",
+    "networkID": 8416,
+    "chainId": 23,
+
+    "HomesteadBlock":      0,
+    "DAOForkBlock":        0,
+    "EIP150Block":         0,
+    "EIP158Block":         0,
+    "ByzantiumBlock":      0,
+    "ConstantinopleBlock": 0,
+
+    "gasLimitBoundDivisor": "0x0400",
+    "minimumDifficulty": "0x020000",
+    "difficultyBoundDivisor": "0x0800",
+    "durationLimit": "0x0d",
+    "blockReward": "0x4563918244F40000",
+    "tieBreakingGas": false,
+    "minGasLimit": "0x1388",
+    "maxGasLimit": "7fffffffffffffff",
+    "maximumExtraDataSize": "0x20"
   },
-  "alloc"      : {},
-  "coinbase"   : "0x0000000000000000000000000000000000000000",
   "difficulty" : "0x400",
-  "author": "0x0000000000000000000000000000000000000000",
-  "extraData"  : "",
+  "nonce"      : "0x92cce9f631dda548",
   "gasLimit"   : "0x8000000",
-  "nonce":       "0x92cce9f631dda548",
   "mixhash"    : "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "author"     : "0x0000000000000000000000000000000000000000",
   "parentHash" : "0x0000000000000000000000000000000000000000000000000000000000000000",
-  "timestamp"  : "0x00"
+  "timestamp"  : "0x00",
+  "extraData"  : "",
+  "alloc"      : {}
 }

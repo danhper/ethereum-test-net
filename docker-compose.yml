@@ -11,6 +11,8 @@ x-anchors:
       - enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
       - --networkid
       - "8416"
+      - --syncmode
+      - "full"
     links:
       - bootnode
 
@@ -25,6 +27,8 @@ x-anchors:
       - --peerset
       - required:a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
       - --no-bootstrap
+      - -v
+      - "4"
     links:
       - bootnode
 
