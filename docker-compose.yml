@@ -13,6 +13,8 @@ x-anchors:
       - "8416"
       - --syncmode
       - "full"
+      - --miner.threads
+      - "1"
     links:
       - bootnode
 
@@ -22,11 +24,15 @@ x-anchors:
     command:
       - --config
       - /etc/aleth-config.json
+      - -t
+      - "1"
       - --network-id
       - "8416"
       - --peerset
       - required:${BOOTNODE}
       - --no-bootstrap
+      - -v
+      - "4"
     links:
       - bootnode
 

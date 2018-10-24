@@ -3,6 +3,10 @@ DATA_DIRS=$(addprefix data/,$(NODES))
 NODE ?= geth_node1
 OTHER_NODE ?= aleth_node1
 
+all: run
+
+setup: generate_boot_key init_geth_nodes
+
 init_geth_nodes:
 	@BOOTNODE=dummy docker-compose run geth_node1 init /etc/geth-config.json
 	@BOOTNODE=dummy docker-compose run geth_node2 init /etc/geth-config.json
