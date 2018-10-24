@@ -27,8 +27,6 @@ x-anchors:
       - --peerset
       - required:${BOOTNODE}
       - --no-bootstrap
-      - -v
-      - "4"
     links:
       - bootnode
 
