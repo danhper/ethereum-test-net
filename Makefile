@@ -19,6 +19,11 @@ compare_blocks:
 clean_nodes_data:
 	@rm -rf $(DATA_DIRS)
 
+clean:
+	@BOOTNODE=dummy docker-compose down
+	@rm -rf data
+	@rm -f .bootnode.txt
+	@rm -f tmp/*
+
 run_cluster:
-	@test -f .bootnode.txt || ./scripts/get-bootnode.sh || { echo ".bootnode.txt not found" && exit 1; }
-	@BOOTNODE=$(shell cat .bootnode.txt) docker-compose up
+	@./scripts/run-cluster.sh

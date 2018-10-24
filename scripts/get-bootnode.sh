@@ -2,6 +2,8 @@
 
 set -e
 
+ROOT_DIR="$(dirname "$(cd "$(dirname "$0")" && pwd -P)")"
+
 BOOTNODE=dummy docker-compose up -d bootnode
 retry=3
 bootnode=""
@@ -18,5 +20,4 @@ if [ -z "$bootnode" ]; then
     exit 1
 fi
 
-echo "$bootnode" > .bootnode.txt
-
+echo "$bootnode" > "$ROOT_DIR/.bootnode.txt"

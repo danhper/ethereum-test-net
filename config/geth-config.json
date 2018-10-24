@@ -1,5 +1,7 @@
 {
   "config": {
+    "ethash": {},
+
     "accountStartNonce": "0x00",
     "networkID": 8416,
     "chainId": 23,
