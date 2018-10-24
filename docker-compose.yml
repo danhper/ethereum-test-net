@@ -1,8 +1,8 @@
 version: '3.4'
 
 x-anchors:
-  geth_config: &geth_config ./geth-config.json:/etc/geth-config.json
-  aleth_config: &aleth_config ./aleth-config.json:/etc/aleth-config.json
+  geth_config: &geth_config ./config/geth-config.json:/etc/geth-config.json
+  aleth_config: &aleth_config ./config/aleth-config.json:/etc/aleth-config.json
 
   geth_node: &geth_node
     image: "ethereum/client-go:v1.8.17"
