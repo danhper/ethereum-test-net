@@ -8,7 +8,7 @@ x-anchors:
     image: "ethereum/client-go:v1.8.17"
     command:
       - --bootnodes
-      - enode://a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
+      - enode://${BOOTNODE}
       - --networkid
       - "8416"
       - --syncmode
@@ -25,7 +25,7 @@ x-anchors:
       - --network-id
       - "8416"
       - --peerset
-      - required:a20822d45dc080b7cf8398686be573bd5403c0c391eb42412f0640dd50eacb2eccb27d677beba265a8142bf086c1c1bf702ca7e6b6f75d18de9ab0b10e48809a@172.16.238.10:30301
+      - required:${BOOTNODE}
       - --no-bootstrap
       - -v
       - "4"
