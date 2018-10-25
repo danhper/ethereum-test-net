@@ -31,8 +31,6 @@ x-anchors:
       - --peerset
       - required:${BOOTNODE}
       - --no-bootstrap
-      - -v
-      - "4"
     links:
       - bootnode
 
@@ -89,6 +87,17 @@ services:
     networks:
       app_net:
         ipv4_address: 172.16.238.23
+
+  instrumented_aleth_node1:
+    <<: *aleth_node
+    entrypoint: ["valgrind", "--log-file=/root/.ethereum/valgrind.log", "aleth"]
+    volumes:
+      - *aleth_config
+      - ./data/instrumented_aleth_node1:/root/.ethereum
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.24
+
 
 networks:
   app_net:
