@@ -90,7 +90,11 @@ services:
 
   instrumented_aleth_node1:
     <<: *aleth_node
-    entrypoint: ["valgrind", "--log-file=/root/.ethereum/valgrind.log", "aleth"]
+    entrypoint:
+      - valgrind
+      - --log-file=/root/.ethereum/valgrind.log
+      - --error-limit=no
+      - aleth
     volumes:
       - *aleth_config
       - ./data/instrumented_aleth_node1:/root/.ethereum
