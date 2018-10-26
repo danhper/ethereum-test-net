@@ -2,8 +2,12 @@ NODES=geth_node1 geth_node2 aleth_node1 aleth_node2
 DATA_DIRS=$(addprefix data/,$(NODES))
 NODE ?= geth_node1
 OTHER_NODE ?= aleth_node1
+BOOTNODE_PATH ?= bootnode/bootnode
 
 all: run
+
+$(BOOTNODE_PATH):
+	@cd bootnode && ./get-tools.sh
 
 setup: generate_boot_key init_geth_nodes
 
@@ -11,7 +15,7 @@ init_geth_nodes:
 	@BOOTNODE=dummy docker-compose run geth_node1 init /etc/geth-config.json
 	@BOOTNODE=dummy docker-compose run geth_node2 init /etc/geth-config.json
 
-generate_boot_key:
+generate_boot_key: $(BOOTNODE_PATH)
 	@BOOTNODE=dummy docker-compose run bootnode --genkey=/root/.ethereum/boot.key
 
 output_block_info:
