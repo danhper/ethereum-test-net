@@ -85,7 +85,7 @@ class Node:
     def get_gas_price(self):
         # increase gas price if last transaction has not been mined yet
         if self.eth.blockNumber == self.last_transaction_block:
-            self._gas_price *= 1.11
+            self._gas_price *= 1.2
         else:
             self._gas_price = self.eth.gasPrice
         return math.ceil(self._gas_price)
