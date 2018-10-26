@@ -164,8 +164,9 @@ class NodeManager:
         print("-" * 90)
 
     def generate_random_transaction(self):
-        estimated_gas = self.nodes[0].eth.estimateGas({"value": 1})
-        estimated_cost = estimated_gas * self.nodes[0].eth.gasPrice
+        node = self.nodes["geth_node2"]
+        estimated_gas = node.eth.estimateGas({"value": 1})
+        estimated_cost = estimated_gas * node.eth.gasPrice
 
         # get a sender with money
         while True:
