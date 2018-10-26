@@ -55,8 +55,11 @@ class Node:
 
     @property
     def balance(self):
-        balance = self.w3.eth.getBalance(self.address)
-        return self.w3.fromWei(balance, "ether")
+        return self.w3.fromWei(self.wei_balance, "ether")
+
+    @property
+    def wei_balance(self):
+        return self.w3.eth.getBalance(self.address)
 
     @property
     def address(self):
@@ -67,6 +70,21 @@ class Node:
         # NOTE: instrumented version is very slow, so increase timeout
         provider = Web3.IPCProvider(filename, timeout=60 * 5)
         return cls(name, Web3(provider))
+
+    def get_nonce(self):
+        return self.eth.getTransactionCount(self.address)
+
+    def send_ether(self, recipient, value):
+        transaction = {
+            "to": recipient.address,
+            "from": self.address,
+            "nonce": self.get_nonce(),
+            "value": value,
+        }
+        try:
+            self.eth.sendTransaction(transaction)
+        except ValueError as ex:
+            logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
 
 
 class NodeContainer:
@@ -133,17 +151,10 @@ class NodeManager:
         while recipient == sender:
             recipient = random.choice(self.nodes)
 
-        # send between 1% and 40% of the balance (this is all made up)
-        percentage_of_balance = Decimal(random.randint(1, 40)) / Decimal(100)
-        value = math.ceil(Decimal(sender.balance) * percentage_of_balance)
-
-        # TODO: fix values to get valid transactions
-        sender.eth.sendTransaction({
-            "to": recipient.address,
-            "from": sender.address,
-            "nonce": sender.eth.getTransactionCount(sender.address),
-            "value": value,
-        })
+        # send between 10% and 40% of the balance (this is all made up)
+        percentage_of_balance = Decimal(random.randint(10, 40)) / Decimal(100)
+        value = math.ceil(Decimal(sender.wei_balance) * percentage_of_balance)
+        sender.send_ether(recipient, value)
 
 
 def stop_miners():
