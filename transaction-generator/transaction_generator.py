@@ -156,9 +156,12 @@ class NodeManager:
     def print_balances(self):
         # not mining nor instrumented node
         reporter = self.nodes["geth_node2"]
+        block = reporter.eth.getBlock("latest")
+        print("Balances at block {0} ({1}):".format(block.number, block.hash.hex()))
         for node in self.nodes:
             print("{0} ({1}): {2:.2f}".format(
                 node.name, node.address, reporter.get_balance(node.address)))
+        print("-" * 90)
 
     def generate_random_transaction(self):
         estimated_gas = self.nodes[0].eth.estimateGas({"value": 1})
