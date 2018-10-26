@@ -27,6 +27,8 @@ class Node:
     def __init__(self, name, w3):
         self.name = name
         self.w3 = w3
+        self.last_transaction_block = self.w3.eth.blockNumber
+        self._gas_price = self.w3.eth.gasPrice
 
     def __getattr__(self, key):
         return getattr(self.w3, key)
@@ -80,15 +82,25 @@ class Node:
     def get_nonce(self):
         return self.eth.getTransactionCount(self.address)
 
+    def get_gas_price(self):
+        # increase gas price if last transaction has not been mined yet
+        if self.eth.blockNumber == self.last_transaction_block:
+            self._gas_price *= 1.11
+        else:
+            self._gas_price = self.eth.gasPrice
+        return math.ceil(self._gas_price)
+
     def send_ether(self, recipient, value):
         transaction = {
             "to": recipient.address,
             "from": self.address,
             "nonce": self.get_nonce(),
             "value": value,
+            "gasPrice": self.get_gas_price(),
         }
         try:
             self.eth.sendTransaction(transaction)
+            self.last_transaction_block = self.w3.eth.blockNumber
         except ValueError as ex:
             logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
 
@@ -145,7 +157,7 @@ class NodeManager:
         # not mining nor instrumented node
         reporter = self.nodes["geth_node2"]
         for node in self.nodes:
-            print("{0} ({1}): {2}".format(
+            print("{0} ({1}): {2:.2f}".format(
                 node.name, node.address, reporter.get_balance(node.address)))
 
     def generate_random_transaction(self):
