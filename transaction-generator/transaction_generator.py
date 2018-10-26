@@ -17,7 +17,7 @@ TEN_YEARS_IN_SECONDS = 3600 * 24 * 365 * 10
 MINERS = ["geth_node1", "aleth_node1"]
 
 try:
-    DATA_PATH = path.join(path.dirname(path.realpath(__file__)), "../data")
+    DATA_PATH = path.join(path.dirname(path.dirname(path.realpath(__file__))), "data")
 except NameError:
     # NOTE: for jupyter-like environment
     DATA_PATH = path.join(path.dirname(path.realpath(".")), "data")
