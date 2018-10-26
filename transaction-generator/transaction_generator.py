@@ -53,13 +53,19 @@ class Node:
         logging.info("{0} stopping to mine".format(self.name))
         self.w3.miner.stop()
 
+    def get_wei_balance(self, address):
+        return self.w3.eth.getBalance(address)
+
+    def get_balance(self, address):
+        return self.w3.fromWei(self.get_wei_balance(address), "ether")
+
     @property
     def balance(self):
-        return self.w3.fromWei(self.wei_balance, "ether")
+        return self.get_balance(self.address)
 
     @property
     def wei_balance(self):
-        return self.w3.eth.getBalance(self.address)
+        return self.get_wei_balance(self.address)
 
     @property
     def address(self):
@@ -136,14 +142,20 @@ class NodeManager:
             self.nodes[miner].w3.miner.stop()
 
     def print_balances(self):
+        # not mining nor instrumented node
+        reporter = self.nodes["geth_node2"]
         for node in self.nodes:
-            print("{0}: {1}".format(node.name, node.balance))
+            print("{0} ({1}): {2}".format(
+                node.name, node.address, reporter.get_balance(node.address)))
 
     def generate_random_transaction(self):
+        estimated_gas = self.nodes[0].eth.estimateGas({"value": 1})
+        estimated_cost = estimated_gas * self.nodes[0].eth.gasPrice
+
         # get a sender with money
         while True:
             sender = random.choice(self.nodes)
-            if sender.balance > 0:
+            if sender.wei_balance > estimated_cost * 2:
                 break
 
         # get a recipient who is not the sender
@@ -170,11 +182,11 @@ def generate_transactions():
 
     running = True
 
-    def sigint_handler(_sig, _frame):
+    def sigterm_handler(_sig, _frame):
         nonlocal running
         running = False
 
-    signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigterm_handler)
 
     logging.info("starting to generate transactions")
     n = 0
