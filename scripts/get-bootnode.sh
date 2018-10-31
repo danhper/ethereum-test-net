@@ -2,9 +2,11 @@
 
 set -e
 
+export BOOTNODE=dummy
+
 ROOT_DIR="$(dirname "$(cd "$(dirname "$0")" && pwd -P)")"
 
-BOOTNODE=dummy docker-compose up -d bootnode
+docker-compose up -d bootnode
 retry=3
 bootnode=""
 while [ $retry -gt 0 ] && [ -z "$bootnode" ]; do
@@ -13,7 +15,7 @@ while [ $retry -gt 0 ] && [ -z "$bootnode" ]; do
     sleep 1
 done
 
-BOOTNODE=dummy docker-compose down
+docker-compose down
 
 if [ -z "$bootnode" ]; then
     echo "could not get bootnode"

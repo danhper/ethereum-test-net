@@ -9,11 +9,14 @@ all: run
 $(BOOTNODE_PATH):
 	@cd bootnode && ./get-tools.sh
 
-setup: generate_boot_key init_geth_nodes
+setup: create_instrumentation_build_dir generate_boot_key init_geth_nodes
 
 init_geth_nodes:
 	@BOOTNODE=dummy docker-compose run geth_node1 init /etc/geth-config.json
 	@BOOTNODE=dummy docker-compose run geth_node2 init /etc/geth-config.json
+
+create_instrumentation_build_dir:
+	@./scripts/create-instrumentation-build-dir.sh
 
 generate_boot_key: $(BOOTNODE_PATH)
 	@BOOTNODE=dummy docker-compose run bootnode --genkey=/root/.ethereum/boot.key
