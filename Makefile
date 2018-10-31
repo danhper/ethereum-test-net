@@ -28,8 +28,9 @@ compare_blocks:
 	@bash -c 'diff <(jq -S . tmp/$(NODE).json) <(jq -S . tmp/$(OTHER_NODE).json) || true'
 
 compute_aleth_coverage:
-	@BOOTNODE=dummy docker-compose run --entrypoint gcov instrumented_aleth_node1 --directory /aleth/build/ --capture --output-file /aleth/build/aleth-cov.info
-	@BOOTNODE=dummy docker-compose run --entrypoint genhtml instrumented_aleth_node1 genhtml -o build/aleth-cov-report build/aleth-cov.info
+	@BOOTNODE=dummy docker-compose run --entrypoint lcov instrumented_aleth_node1 --directory /aleth/build/ --capture --output-file /aleth/build/aleth-cov.info
+	@BOOTNODE=dummy docker-compose run --entrypoint genhtml instrumented_aleth_node1 -o build/aleth-cov-report build/aleth-cov.info
+	@echo "HTML report saved in build/aleth-cov-report"
 
 clean_nodes_data:
 	@rm -rf $(DATA_DIRS)
