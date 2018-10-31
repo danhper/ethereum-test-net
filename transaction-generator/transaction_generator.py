@@ -14,7 +14,7 @@ from web3 import Web3
 
 INSECURE_PASSPHRASE = "foobarbaz"
 TEN_YEARS_IN_SECONDS = 3600 * 24 * 365 * 10
-MINERS = ["geth_node1", "aleth_node1"]
+MINERS = ["geth_node1", "aleth_node1", "instrumented_aleth_node1"]
 
 try:
     DATA_PATH = path.join(path.dirname(path.dirname(path.realpath(__file__))), "data")
@@ -134,7 +134,9 @@ class NodeManager:
 
     def add_nodes_from_dir(self, root_dir):
         for directory in os.listdir(root_dir):
-            ipc_file = path.join(root_dir, directory, "geth.ipc")
+            ipc_file = path.join(root_dir, directory, "ethereum", "geth.ipc")
+            # NOTE: make sure we do not run into the 100 chars limit for sockets
+            ipc_file = path.relpath(ipc_file, os.getcwd())
             if path.exists(ipc_file):
                 self.add_node(Node.from_file(directory, ipc_file))
 
