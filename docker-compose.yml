@@ -47,8 +47,8 @@ services:
       app_net:
         ipv4_address: 172.16.238.10
     volumes:
-      - ./data/bootnode/ethereum:/root/.ethereum
-      - ./data/bootnode/logs:/root/logs/
+      - ./docker-data/bootnode/ethereum:/root/.ethereum
+      - ./docker-data/bootnode/logs:/root/logs/
     ports:
       - "30301:30301/udp"
 
@@ -56,7 +56,7 @@ services:
     <<: *geth_node
     volumes:
       - *geth_config
-      - ./data/geth_node1/ethereum:/root/.ethereum
+      - ./docker-data/geth_node1/ethereum:/root/.ethereum
     networks:
       app_net:
         ipv4_address: 172.16.238.20
@@ -65,7 +65,7 @@ services:
     <<: *geth_node
     volumes:
       - *geth_config
-      - ./data/geth_node2/ethereum:/root/.ethereum
+      - ./docker-data/geth_node2/ethereum:/root/.ethereum
     networks:
       app_net:
         ipv4_address: 172.16.238.21
@@ -74,7 +74,7 @@ services:
     <<: *aleth_node
     volumes:
       - *aleth_config
-      - ./data/aleth_node1/ethereum:/root/.ethereum
+      - ./docker-data/aleth_node1/ethereum:/root/.ethereum
     networks:
       app_net:
         ipv4_address: 172.16.238.22
@@ -83,7 +83,7 @@ services:
     <<: *aleth_node
     volumes:
       - *aleth_config
-      - ./data/aleth_node2/ethereum:/root/.ethereum
+      - ./docker-data/aleth_node2/ethereum:/root/.ethereum
     networks:
       app_net:
         ipv4_address: 172.16.238.23
@@ -97,8 +97,8 @@ services:
       - /aleth/build/aleth/aleth
     volumes:
       - *aleth_config
-      - ./data/instrumented_aleth_node1/ethereum:/root/.ethereum
-      - ./data/instrumented_aleth_node1/build:/aleth/build
+      - ./docker-data/instrumented_aleth_node1/ethereum:/root/.ethereum
+      - ./docker-data/instrumented_aleth_node1/build:/aleth/build
     networks:
       app_net:
         ipv4_address: 172.16.238.24

@@ -1,4 +1,4 @@
-/data
+/docker-data
 /tmp
 *.bak
 .bootnode.txt
