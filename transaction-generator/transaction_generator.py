@@ -7,8 +7,10 @@ from os import path
 import random
 import signal
 import time
+from threading import Thread
 from typing import List
 
+from filelock import FileLock
 from web3 import Web3
 
 
@@ -18,10 +20,13 @@ MINERS = ["geth_node1", "aleth_node1", "instrumented_aleth_node1"]
 
 
 try:
-    DATA_PATH = path.join(path.dirname(path.dirname(path.realpath(__file__))), "docker-data")
+    ROOT_DIR = path.dirname(path.dirname(path.realpath(__file__)))
 except NameError:
     # NOTE: for jupyter-like environment
-    DATA_PATH = path.join(path.dirname(path.realpath(".")), "docker-data")
+    ROOT_DIR = path.dirname(path.realpath("."))
+
+DOCKER_DATA_PATH = path.join(ROOT_DIR, "docker-data")
+DATA_PATH = path.join(ROOT_DIR, "data")
 
 
 class Node:
@@ -91,6 +96,15 @@ class Node:
             self._gas_price = self.eth.gasPrice
         return math.ceil(self._gas_price)
 
+    def _safe_send_transaction(self, transaction, update_last_transaction=False):
+        try:
+            result = self.eth.sendTransaction(transaction)
+            if update_last_transaction:
+                self.last_transaction_block = self.w3.eth.blockNumber
+            return result
+        except ValueError as ex:
+            logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
+
     def send_ether(self, recipient, value):
         transaction = {
             "to": recipient.address,
@@ -99,11 +113,34 @@ class Node:
             "value": value,
             "gasPrice": self.get_gas_price(),
         }
-        try:
-            self.eth.sendTransaction(transaction)
-            self.last_transaction_block = self.w3.eth.blockNumber
-        except ValueError as ex:
-            logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
+        self._safe_send_transaction(transaction, update_last_transaction=True)
+
+    def create_contract(self, bytecode):
+        transaction = {
+            "from": self.address,
+            "gasPrice": self.get_gas_price(),
+            "data": bytecode,
+            "value": 100,
+        }
+        gas = self.eth.estimateGas(transaction)
+        transaction["gas"] = gas
+        tx_hash = self._safe_send_transaction(transaction)
+        self._finalize_contract_creation(tx_hash)
+        return tx_hash
+
+    def wait_for_receipt(self, tx_hash):
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    def _finalize_contract_creation(self, tx_hash):
+        def finalize():
+            receipt = self.wait_for_receipt(tx_hash)
+            self.process_receipt(receipt)
+        Thread(target=finalize).start()
+
+    def process_receipt(self, receipt):
+        with FileLock(path.join(DATA_PATH, "generated", "lock")):
+            with open(path.join(DATA_PATH, "generated", "addresses.txt"), "a") as f:
+                print(receipt["contractAddress"], file=f)
 
 
 class NodeContainer:
@@ -190,12 +227,12 @@ class NodeManager:
 
 def stop_miners():
     manager = NodeManager()
-    manager.add_nodes_from_dir(DATA_PATH)
+    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
     manager.stop_miners(MINERS)
 
 def generate_transactions():
     manager = NodeManager()
-    manager.add_nodes_from_dir(DATA_PATH)
+    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
     manager.initialize_nodes()
     manager.start_miners(MINERS)
 

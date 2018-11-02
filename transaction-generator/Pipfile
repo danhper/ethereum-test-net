@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 "web3" = "*"
+pandas = "*"
+filelock = "*"
 
 [dev-packages]
 pylint = "*"
@@ -12,3 +14,6 @@ ipython = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

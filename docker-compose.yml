@@ -88,20 +88,20 @@ services:
       app_net:
         ipv4_address: 172.16.238.23
 
-  instrumented_aleth_node1:
-    <<: *aleth_node
-    entrypoint:
-      - valgrind
-      - --log-file=/root/.ethereum/valgrind.log
-      - --error-limit=no
-      - /aleth/build/aleth/aleth
-    volumes:
-      - *aleth_config
-      - ./docker-data/instrumented_aleth_node1/ethereum:/root/.ethereum
-      - ./docker-data/instrumented_aleth_node1/build:/aleth/build
-    networks:
-      app_net:
-        ipv4_address: 172.16.238.24
+  # instrumented_aleth_node1:
+  #   <<: *aleth_node
+  #   entrypoint:
+  #     - valgrind
+  #     - --log-file=/root/.ethereum/valgrind.log
+  #     - --error-limit=no
+  #     - /aleth/build/aleth/aleth
+  #   volumes:
+  #     - *aleth_config
+  #     - ./docker-data/instrumented_aleth_node1/ethereum:/root/.ethereum
+  #     - ./docker-data/instrumented_aleth_node1/build:/aleth/build
+  #   networks:
+  #     app_net:
+  #       ipv4_address: 172.16.238.24
 
 
 networks:
