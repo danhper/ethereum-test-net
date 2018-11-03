@@ -16,7 +16,8 @@ from web3 import Web3
 
 INSECURE_PASSPHRASE = "foobarbaz"
 TEN_YEARS_IN_SECONDS = 3600 * 24 * 365 * 10
-MINERS = ["geth_node1", "aleth_node1", "instrumented_aleth_node1"]
+# MINERS = ["geth_node1", "aleth_node1"]
+MINERS = ["aleth_node1"]
 
 
 try:
@@ -38,6 +39,9 @@ class Node:
 
     def __getattr__(self, key):
         return getattr(self.w3, key)
+
+    def __repr__(self):
+        return "Node(name='{0}')".format(self.name)
 
     def create_and_unlock_account(self):
         if not self.w3.personal.listAccounts:
@@ -150,6 +154,9 @@ class NodeContainer:
     def add(self, node):
         self.nodes.append(node)
 
+    def __repr__(self):
+        return "NodeContainer(nodes={0})".format(self.nodes)
+
     def __iter__(self):
         return iter(self.nodes)
 
@@ -230,6 +237,13 @@ def stop_miners():
     manager.add_nodes_from_dir(DOCKER_DATA_PATH)
     manager.stop_miners(MINERS)
 
+
+def start_miners():
+    manager = NodeManager()
+    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
+    manager.start_miners(MINERS)
+
+
 def generate_transactions():
     manager = NodeManager()
     manager.add_nodes_from_dir(DOCKER_DATA_PATH)
@@ -267,10 +281,13 @@ def main():
 
     subparsers.add_parser("generate-transactions")
     subparsers.add_parser("stop-miners")
+    subparsers.add_parser("start-miners")
 
     args = parser.parse_args()
     if args.command == "stop-miners":
         stop_miners()
+    if args.command == "start-miners":
+        start_miners()
     else:
         generate_transactions()
 

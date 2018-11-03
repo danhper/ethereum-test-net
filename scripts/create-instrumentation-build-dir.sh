@@ -4,6 +4,8 @@ set -e
 
 export BOOTNODE=dummy
 
+docker-compose config --services | grep -q instrumented_aleth_node1 || exit 0
+
 sed -i -r -e 's|^(\s+)(- ./docker-data/instrumented_aleth_node1/build:/aleth/build)|\1# \2|' docker-compose.yml
 
 docker-compose up -d instrumented_aleth_node1
