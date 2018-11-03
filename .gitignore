@@ -3,3 +3,4 @@
 *.bak
 .bootnode.txt
 .vscode/
+/local-network/data
