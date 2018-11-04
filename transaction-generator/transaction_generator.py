@@ -16,8 +16,7 @@ from web3 import Web3
 
 INSECURE_PASSPHRASE = "foobarbaz"
 TEN_YEARS_IN_SECONDS = 3600 * 24 * 365 * 10
-# MINERS = ["geth_node1", "aleth_node1"]
-MINERS = ["aleth_node1"]
+MINERS = ["geth_node1", "aleth_node1"]
 
 
 try:

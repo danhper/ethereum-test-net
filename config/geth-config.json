@@ -6,7 +6,7 @@
     "networkID": 8416,
     "chainId": 23,
 
-    "homesteadBlock":      1150000,
+    "homesteadBlock":      0,
     "daoForkBlock":        null,
     "daoForkSupport":      true,
     "eip150Block":         0,
