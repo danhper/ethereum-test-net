@@ -26,7 +26,7 @@ except NameError:
     # NOTE: for jupyter-like environment
     ROOT_DIR = path.dirname(path.realpath("."))
 
-DOCKER_DATA_PATH = path.join(ROOT_DIR, "docker-data")
+CHAIN_DATA_PATH = path.join(ROOT_DIR, "docker-data")
 DATA_PATH = path.join(ROOT_DIR, "data")
 
 
@@ -179,11 +179,16 @@ class NodeManager:
 
     def add_nodes_from_dir(self, root_dir):
         for directory in os.listdir(root_dir):
-            ipc_file = path.join(root_dir, directory, "ethereum", "geth.ipc")
-            # NOTE: make sure we do not run into the 100 chars limit for sockets
-            ipc_file = path.relpath(ipc_file, os.getcwd())
-            if path.exists(ipc_file):
-                self.add_node(Node.from_file(directory, ipc_file))
+            dir_path = path.join(root_dir, directory)
+            # XXX: this should probably be configurable
+            paths = [path.join(dir_path, "geth.ipc"),
+                     path.join(dir_path, "ethereum", "geth.ipc")]
+            for ipc_file in paths:
+                # NOTE: make sure we do not run into the 100 chars limit for sockets
+                ipc_file = path.relpath(ipc_file, os.getcwd())
+                if path.exists(ipc_file):
+                    self.add_node(Node.from_file(directory, ipc_file))
+                    break
 
     def add_node(self, node):
         self.nodes.add(node)
@@ -201,8 +206,7 @@ class NodeManager:
             self.nodes[miner].w3.miner.stop()
 
     def print_balances(self):
-        # not mining nor instrumented node
-        reporter = self.nodes["geth_node2"]
+        reporter = random.choice(self.nodes)
         block = reporter.eth.getBlock("latest")
         print("Balances at block {0} ({1}):".format(block.number, block.hash.hex()))
         for node in self.nodes:
@@ -211,7 +215,7 @@ class NodeManager:
         print("-" * 90)
 
     def generate_random_transaction(self):
-        node = self.nodes["geth_node2"]
+        node = random.choice(self.nodes)
         estimated_gas = node.eth.estimateGas({"value": 1})
         estimated_cost = estimated_gas * node.eth.gasPrice
 
@@ -232,23 +236,23 @@ class NodeManager:
         sender.send_ether(recipient, value)
 
 
-def stop_miners():
+def stop_miners(chain_data_path, miners):
     manager = NodeManager()
-    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
-    manager.stop_miners(MINERS)
+    manager.add_nodes_from_dir(chain_data_path)
+    manager.stop_miners(miners)
 
 
-def start_miners():
+def start_miners(chain_data_path, miners):
     manager = NodeManager()
-    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
-    manager.start_miners(MINERS)
+    manager.add_nodes_from_dir(chain_data_path)
+    manager.start_miners(miners)
 
 
-def generate_transactions():
+def generate_transactions(chain_data_path, miners):
     manager = NodeManager()
-    manager.add_nodes_from_dir(DOCKER_DATA_PATH)
+    manager.add_nodes_from_dir(chain_data_path)
     manager.initialize_nodes()
-    manager.start_miners(MINERS)
+    manager.start_miners(miners)
 
     running = True
 
@@ -270,13 +274,17 @@ def generate_transactions():
             manager.print_balances()
         n = (n + 1) % 10
 
-    manager.stop_miners(MINERS)
+    manager.stop_miners(miners)
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser(prog="transcation-generator")
+    parser.add_argument("-d", "--chain-data", help="directory for chain data",
+                        default=CHAIN_DATA_PATH)
+    parser.add_argument("-m", "--miners", help="list of miners", action="append")
+
     subparsers = parser.add_subparsers(dest="command")
 
     subparsers.add_parser("generate-transactions")
@@ -284,12 +292,15 @@ def main():
     subparsers.add_parser("start-miners")
 
     args = parser.parse_args()
+    if not args.miners:
+        args.miners = MINERS
+
     if args.command == "stop-miners":
-        stop_miners()
-    if args.command == "start-miners":
-        start_miners()
+        stop_miners(args.chain_data, args.miners)
+    elif args.command == "start-miners":
+        start_miners(args.chain_data, args.miners)
     else:
-        generate_transactions()
+        generate_transactions(args.chain_data, args.miners)
 
 
 
