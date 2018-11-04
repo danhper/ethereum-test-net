@@ -4,3 +4,4 @@
 .bootnode.txt
 .vscode/
 /local-network/data
+/local-network/logs

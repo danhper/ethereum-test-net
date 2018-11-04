@@ -1,0 +1,12 @@
+include .env
+
+bootnode:
+	bootnode -nodekey boot.key
+
+aleth:
+	$(ALETH_PATH) --peerset "required:$(BOOTNODE)" --network-id $(NETWORK_ID) \
+				  --config ../config/aleth-config.json -t 1 --no-bootstrap --db-path data/aleth
+
+geth:
+	go run $(GETH_CMD) --bootnodes "enode://$(BOOTNODE)" --networkid $(NETWORK_ID) \
+					   --syncmode full --miner.threads 1 --datadir data/geth --port 30313
