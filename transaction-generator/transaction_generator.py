@@ -244,6 +244,7 @@ def stop_miners(chain_data_path, miners):
 def start_miners(chain_data_path, miners):
     manager = NodeManager()
     manager.add_nodes_from_dir(chain_data_path)
+    manager.initialize_nodes()
     manager.start_miners(miners)
 
 
