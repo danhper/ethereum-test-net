@@ -5,10 +5,12 @@ name = "pypi"
 
 [packages]
 eth_tools = {editable = true, path = "."}
+hypothesis = "*"
 
 [dev-packages]
 pylint = "*"
 ipython = "*"
+nose = "*"
 
 [requires]
 python_version = "3.6"
