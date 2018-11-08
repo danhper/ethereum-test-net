@@ -4,9 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"web3" = "*"
-pandas = "*"
-filelock = "*"
+eth_tools = {editable = true, path = "."}
 
 [dev-packages]
 pylint = "*"
