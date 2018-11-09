@@ -1,7 +1,9 @@
 from functools import lru_cache
 import json
 import subprocess
-from typing import Optional
+from typing import Optional, List, Any
+
+from .data_generator import DataGenerator
 
 
 class Contract:
@@ -25,7 +27,8 @@ class Contract:
         for source in spec["sources"].values():
             # all contracts in each source file
             for contract in source["AST"]["children"]:
-                if not contract["id"] in blacklisted:
+                if not contract["id"] in blacklisted and \
+                       contract["attributes"].get("contractKind") == "contract":
                     candidates[contract["id"]] = contract["attributes"]["name"]
                 for dependency in contract["attributes"].get("contractDependencies", []):
                     if dependency:
@@ -62,6 +65,14 @@ class Contract:
 
     def __repr__(self):
         return "Contract(name='{0}')".format(self.name)
+
+    def get_function_abi(self, name: str, raise_on_multiple = False):
+        candidates = [f for f in self.abi if f["type"] == "function" and f.get("name") == name]
+        if not candidates:
+            raise ValueError("no function named {0}".format(name))
+        if len(candidates) > 1 and raise_on_multiple:
+            raise ValueError("multiple functions named {0}".format(name))
+        return candidates[0]
 
     @classmethod
     def from_json_file(cls, filepath: str, contract_name: Optional[str] = None,

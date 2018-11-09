@@ -27,9 +27,17 @@ def run():
 
     subparsers = parser.add_subparsers(dest="command")
 
-    subparsers.add_parser("generate-transactions")
-    subparsers.add_parser("stop-miners")
-    subparsers.add_parser("start-miners")
+    subparsers.add_parser("generate-transactions", help="generate random transactions")
+    subparsers.add_parser("start-miners", help="start all miners")
+    subparsers.add_parser("stop-miners", help="stop all miners")
+
+    create_contract_parser = subparsers.add_parser("create-contract",
+                                                   help="creates a contract")
+    create_contract_parser.add_argument("contract", help="sol or json file with the contract")
+    create_contract_parser.add_argument("--node", help="node from which to create contract")
+    create_contract_parser.add_argument("--name", help="name of the contract. required when multiple "
+                                                       "contracts exist in the same file")
+
 
     args = parser.parse_args()
     if not args.miners:

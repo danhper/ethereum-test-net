@@ -73,6 +73,9 @@ class NodeManager:
                 node.name, node.address, reporter.get_balance(node.address)))
         print("-" * 90)
 
+    def get_random_node(self):
+        return random.choice(self.nodes)
+
     def generate_random_transaction(self):
         node = random.choice(self.nodes)
         estimated_gas = node.eth.estimateGas({"value": 1})
@@ -93,4 +96,3 @@ class NodeManager:
         percentage_of_balance = Decimal(random.randint(10, 40)) / Decimal(100)
         value = math.ceil(Decimal(sender.wei_balance) * percentage_of_balance)
         sender.send_ether(recipient, value)
-

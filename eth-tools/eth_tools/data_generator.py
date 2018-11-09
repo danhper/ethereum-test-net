@@ -1,3 +1,5 @@
+from cachetools.func import ttl_cache
+
 from hypothesis import strategies
 
 
@@ -9,24 +11,33 @@ def alphanum_chars():
     return char_range("a", "z") + char_range("A", "Z") + char_range("0", "9")
 
 
-eth_strategies = {
-    "address": strategies.text(alphabet=alphanum_chars(), min_size=40, max_size=40),
-    "string": strategies.text(),
-    "bytes": strategies.binary(),
-    "byte32": strategies.binary(max_size=32),
-    "uint256": strategies.integers(min_value=0, max_value=2 ** 256 - 1)
-}
+class DataGenerator:
+    STATIC_STRATEGIES = {
+        "string": strategies.text(),
+        "bytes": strategies.binary(),
+        "byte32": strategies.binary(max_size=32),
+        "uint256": strategies.integers(min_value=0, max_value=2 ** 256 - 1)
+    }
 
+    def __init__(self, node):
+        self._node = node
 
-def type_to_strategy(type_string):
-    is_list = type_string.endswith("[]")
-    if is_list:
-        type_string = type_string[:-2]
-    strategy = eth_strategies[type_string]
-    if is_list:
-        strategy = strategies.lists(strategy)
-    return strategy
+    def get_strategy(self, name):
+        is_list = name.endswith("[]")
+        if is_list:
+            name = name[:-2]
+        strategy = self.STATIC_STRATEGIES.get(name, getattr(self, name, None))
+        if not strategy:
+            raise ValueError("unknown type {0}".format(name))
+        if is_list:
+            strategy = strategies.lists(strategy, unique=True)
+        return strategy
 
+    def generate_example(self, name):
+        return self.get_strategy(name).example()
 
-def generate_example(type_string):
-    return type_to_strategy(type_string).example()
+    @property
+    @ttl_cache()
+    def address(self):
+        addresses = list(self._node.list_all_accounts())
+        return strategies.sampled_from(addresses)

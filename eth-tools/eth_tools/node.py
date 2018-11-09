@@ -7,6 +7,7 @@ from web3 import Web3
 from filelock import FileLock
 
 from . import settings
+from .contract import Contract
 
 
 class Node:
@@ -98,29 +99,50 @@ class Node:
         }
         self._safe_send_transaction(transaction, update_last_transaction=True)
 
-    def create_contract(self, bytecode):
-        transaction = {
-            "from": self.address,
-            "gasPrice": self.get_gas_price(),
-            "data": bytecode,
-            "value": 100,
-        }
-        gas = self.eth.estimateGas(transaction)
-        transaction["gas"] = gas
+    def create_contract(self, transaction: dict, wait=False, callback=None):
+        transaction = transaction.copy()
+        transaction["from"] = self.address
         tx_hash = self._safe_send_transaction(transaction)
-        self._finalize_contract_creation(tx_hash)
-        return tx_hash
+        return self._finalize_contract_creation(tx_hash, wait=wait, callback=callback)
 
     def wait_for_receipt(self, tx_hash):
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    def _finalize_contract_creation(self, tx_hash):
+    def _finalize_contract_creation(self, tx_hash, wait=False, callback=None):
         def finalize():
             receipt = self.wait_for_receipt(tx_hash)
             self.process_receipt(receipt)
-        Thread(target=finalize).start()
+            if callback:
+                callback(receipt)
+            return receipt
+
+        if wait:
+            return finalize()
+        else:
+            thread = Thread(target=finalize)
+            thread.start()
+            return None
 
     def process_receipt(self, receipt):
+        addresses_path = path.join(settings.DATA_PATH, "generated", "addresses.txt")
         with FileLock(path.join(settings.DATA_PATH, "generated", "lock")):
-            with open(path.join(settings.DATA_PATH, "generated", "addresses.txt"), "a") as f:
+            with open(addresses_path, "a") as f:
                 print(receipt["contractAddress"], file=f)
+        logging.info("%s created contract at address %s, address saved in %s",
+                     self.name, receipt["contractAddress"], addresses_path)
+
+    def list_all_accounts(self):
+        block = self.w3.eth.getBlock("latest")
+        accounts = set()
+        while True:
+            if int(block.miner, 16) != 0:
+                accounts.add(block.miner)
+            for tx_hash in block.transactions:
+                transaction = self.w3.eth.getTransaction(tx_hash)
+                accounts.add(transaction["from"])
+                if transaction.get("to"):
+                    accounts.add(transaction["to"])
+            if int(block.parentHash.hex(), 16) == 0:
+                break
+            block = self.w3.eth.getBlock(block.parentHash)
+        return accounts

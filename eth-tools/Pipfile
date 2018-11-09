@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 eth_tools = {editable = true, path = "."}
 hypothesis = "*"
+cachetools = "*"
 
 [dev-packages]
 pylint = "*"
