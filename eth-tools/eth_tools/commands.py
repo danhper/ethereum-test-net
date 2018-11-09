@@ -10,13 +10,18 @@ def stop_miners(args):
 
 def start_miners(args):
     manager = _get_manager(args)
-    manager.initialize_nodes()
     manager.start_miners(args.miners)
 
 
 def generate_transactions(args):
     manager = _get_manager(args)
     transaction_generator.generate_transactions(manager, args.miners)
+
+
+def list_nodes(args):
+    manager = _get_manager(args)
+    for node in manager.nodes:
+        print(node.name)
 
 
 def create_contract(args):

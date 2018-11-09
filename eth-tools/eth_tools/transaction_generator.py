@@ -11,7 +11,6 @@ from .data_generator import DataGenerator
 
 def generate_transactions(manager: NodeManager, miners: List[str]):
     manager.initialize_nodes()
-    manager.start_miners(miners)
 
     running = True
 
@@ -32,8 +31,6 @@ def generate_transactions(manager: NodeManager, miners: List[str]):
         if n % 10 == 0:
             manager.print_balances()
         n = (n + 1) % 10
-
-    manager.stop_miners(miners)
 
 
 def generate_function_args(generator: DataGenerator, function_abi: dict) -> List[Any]:

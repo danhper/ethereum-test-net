@@ -46,7 +46,7 @@ clean:
 	@BOOTNODE=dummy DATA_DIR=$(DATA_DIR) docker-compose down
 	@rm -rf $(DATA_DIR)
 	@rm -f .bootnode.txt
-	@rm -f tmp/*
+	@rm -rf tmp/*
 
 run_cluster:
 	@DATA_DIR=$(DATA_DIR) ./scripts/run-cluster.sh

@@ -58,6 +58,7 @@ class NodeManager:
 
     def start_miners(self, miners):
         for miner in miners:
+            self.nodes[miner].initialize()
             self.nodes[miner].start_mining()
 
     def stop_miners(self, miners):

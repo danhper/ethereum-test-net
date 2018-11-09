@@ -30,6 +30,7 @@ def run():
     subparsers.add_parser("generate-transactions", help="generate random transactions")
     subparsers.add_parser("start-miners", help="start all miners")
     subparsers.add_parser("stop-miners", help="stop all miners")
+    subparsers.add_parser("list-nodes", help="list nodes in the cluster")
 
     create_contract_parser = subparsers.add_parser("create-contract",
                                                    help="creates a contract")
