@@ -1,5 +1,3 @@
-from decimal import Decimal
-import math
 import os
 from os import path
 import random
@@ -76,24 +74,3 @@ class NodeManager:
 
     def get_random_node(self):
         return random.choice(self.nodes)
-
-    def generate_random_transaction(self):
-        node = random.choice(self.nodes)
-        estimated_gas = node.eth.estimateGas({"value": 1})
-        estimated_cost = estimated_gas * node.eth.gasPrice
-
-        # get a sender with money
-        while True:
-            sender = random.choice(self.nodes)
-            if sender.wei_balance > estimated_cost * 2:
-                break
-
-        # get a recipient who is not the sender
-        recipient = sender
-        while recipient == sender:
-            recipient = random.choice(self.nodes)
-
-        # send between 10% and 40% of the balance (this is all made up)
-        percentage_of_balance = Decimal(random.randint(10, 40)) / Decimal(100)
-        value = math.ceil(Decimal(sender.wei_balance) * percentage_of_balance)
-        sender.send_ether(recipient, value)

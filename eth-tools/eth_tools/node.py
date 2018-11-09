@@ -1,4 +1,5 @@
 import logging
+import json
 import math
 from os import path
 from threading import Thread
@@ -99,19 +100,19 @@ class Node:
         }
         self._safe_send_transaction(transaction, update_last_transaction=True)
 
-    def create_contract(self, transaction: dict, wait=False, callback=None):
+    def create_contract(self, contract: Contract, transaction: dict, wait=False, callback=None):
         transaction = transaction.copy()
         transaction["from"] = self.address
         tx_hash = self._safe_send_transaction(transaction)
-        return self._finalize_contract_creation(tx_hash, wait=wait, callback=callback)
+        return self._finalize_contract_creation(tx_hash, contract, wait=wait, callback=callback)
 
     def wait_for_receipt(self, tx_hash):
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
 
-    def _finalize_contract_creation(self, tx_hash, wait=False, callback=None):
+    def _finalize_contract_creation(self, tx_hash, contract, wait=False, callback=None):
         def finalize():
             receipt = self.wait_for_receipt(tx_hash)
-            self.process_receipt(receipt)
+            self.process_receipt(receipt, contract)
             if callback:
                 callback(receipt)
             return receipt
@@ -123,13 +124,21 @@ class Node:
             thread.start()
             return None
 
-    def process_receipt(self, receipt):
-        addresses_path = path.join(settings.DATA_PATH, "generated", "addresses.txt")
+    def process_receipt(self, receipt: dict, contract: Contract):
+        created_contracts_path = path.join(settings.DATA_PATH, "generated", "addresses.jsonl")
+        contract_info = dict(
+            name=contract.name,
+            address=receipt["contractAddress"],
+            bytecode=contract.bytecode,
+            abi=contract.abi,
+        )
         with FileLock(path.join(settings.DATA_PATH, "generated", "lock")):
-            with open(addresses_path, "a") as f:
-                print(receipt["contractAddress"], file=f)
-        logging.info("%s created contract at address %s, address saved in %s",
-                     self.name, receipt["contractAddress"], addresses_path)
+            with open(created_contracts_path, "a") as f:
+                json.dump(contract_info, f)
+                f.write("\n")
+
+        logging.info("%s created contract at address %s, info saved in %s",
+                     self.name, receipt["contractAddress"], created_contracts_path)
 
     def list_all_accounts(self):
         block = self.w3.eth.getBlock("latest")
