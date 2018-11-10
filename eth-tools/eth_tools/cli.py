@@ -13,6 +13,8 @@ subparsers = parser.add_subparsers(dest="command")
 
 subparsers.add_parser("generate-transactions", help="generate random transactions")
 
+subparsers.add_parser("generate-contract-calls", help="generate random contract calls")
+
 start_miners_parser = subparsers.add_parser("start-miners", help="start all miners")
 start_miners_parser.add_argument("-m", "--miners", help="list of miners", action="append")
 

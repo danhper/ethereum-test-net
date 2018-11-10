@@ -12,6 +12,7 @@ cachetools = "*"
 pylint = "*"
 ipython = "*"
 nose = "*"
+rope = "*"
 
 [requires]
 python_version = "3.6"

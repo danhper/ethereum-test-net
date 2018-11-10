@@ -15,7 +15,7 @@ class DataGenerator:
     STATIC_STRATEGIES = {
         "string": strategies.text(),
         "bytes": strategies.binary(),
-        "byte32": strategies.binary(max_size=32),
+        "bytes32": strategies.binary(max_size=32),
         "uint256": strategies.integers(min_value=0, max_value=2 ** 256 - 1)
     }
 

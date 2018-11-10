@@ -6,9 +6,14 @@ from eth_tools.node_manager import NodeManager, Node, NodeContainer
 from eth_tools import settings
 
 
+def make_dummy_address(name):
+    return hex(hash(name))
+
+
 def make_mock_node(name, _ipc_file=None):
     m = Mock()
     m.name = name
+    m.address = make_dummy_address(name)
     return m
 
 
@@ -36,6 +41,10 @@ class NodeManagerTest(unittest.TestCase):
         self.manager.nodes["foo"].stop_mining.assert_called_once()
         self.manager.nodes["bar"].stop_mining.assert_not_called()
 
+    def test_node_by_address(self):
+        node = self.manager.node_by_address(make_dummy_address("foo"))
+        self.assertEqual(node, self.manager.nodes["foo"])
+
 
 
 class NodeContainerTest(unittest.TestCase):
@@ -60,3 +69,12 @@ class NodeContainerTest(unittest.TestCase):
 
         with self.assertRaises(IndexError):
             self.container[2]
+
+    def test_find(self):
+        self.container.add(make_mock_node("foo"))
+        self.container.add(make_mock_node("bar"))
+        foo_addr = make_dummy_address("foo")
+        self.assertEqual(self.container[0].address, foo_addr)
+        self.assertEqual(self.container[0], self.container.find(lambda n: n.address == foo_addr))
+        with self.assertRaises(ValueError):
+            self.container.find(lambda n_: False)

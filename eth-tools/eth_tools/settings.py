@@ -12,3 +12,5 @@ CHAIN_DATA_PATH = os.environ.get(
     "CHAIN_DATA_PATH",
     path.join(path.expanduser("~/.eth-docker-data")))
 DATA_PATH = path.join(ROOT_DIR, "data")
+
+CONTRACTS_FILE = path.join(DATA_PATH, "generated", "contracts.jsonl")

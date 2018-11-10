@@ -81,7 +81,7 @@ class Node:
             self._gas_price = self.eth.gasPrice
         return math.ceil(self._gas_price)
 
-    def _safe_send_transaction(self, transaction, update_last_transaction=False):
+    def safe_send_transaction(self, transaction, update_last_transaction=False):
         try:
             result = self.eth.sendTransaction(transaction)
             if update_last_transaction:
@@ -90,20 +90,10 @@ class Node:
         except ValueError as ex:
             logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
 
-    def send_ether(self, recipient, value):
-        transaction = {
-            "to": recipient.address,
-            "from": self.address,
-            "nonce": self.get_nonce(),
-            "value": value,
-            "gasPrice": self.get_gas_price(),
-        }
-        self._safe_send_transaction(transaction, update_last_transaction=True)
-
     def create_contract(self, contract: Contract, transaction: dict, wait=False, callback=None):
         transaction = transaction.copy()
         transaction["from"] = self.address
-        tx_hash = self._safe_send_transaction(transaction)
+        tx_hash = self.safe_send_transaction(transaction)
         return self._finalize_contract_creation(tx_hash, contract, wait=wait, callback=callback)
 
     def wait_for_receipt(self, tx_hash):
@@ -125,7 +115,6 @@ class Node:
             return None
 
     def process_receipt(self, receipt: dict, contract: Contract):
-        created_contracts_path = path.join(settings.DATA_PATH, "generated", "addresses.jsonl")
         contract_info = dict(
             name=contract.name,
             address=receipt["contractAddress"],
@@ -133,12 +122,12 @@ class Node:
             abi=contract.abi,
         )
         with FileLock(path.join(settings.DATA_PATH, "generated", "lock")):
-            with open(created_contracts_path, "a") as f:
+            with open(settings.CONTRACTS_FILE, "a") as f:
                 json.dump(contract_info, f)
                 f.write("\n")
 
         logging.info("%s created contract at address %s, info saved in %s",
-                     self.name, receipt["contractAddress"], created_contracts_path)
+                     self.name, receipt["contractAddress"], settings.CONTRACTS_FILE)
 
     def list_all_accounts(self):
         block = self.w3.eth.getBlock("latest")

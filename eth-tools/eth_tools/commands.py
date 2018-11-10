@@ -1,7 +1,8 @@
-from .node_manager import NodeManager
-from . import transaction_generator
 from . import settings
+from . import transaction_builder
+from . import transaction_sender
 from .contract import Contract
+from .node_manager import NodeManager
 
 
 def stop_miners(args):
@@ -16,7 +17,7 @@ def start_miners(args):
 
 def generate_transactions(args):
     manager = _get_manager(args)
-    transaction_generator.generate_transactions(manager)
+    transaction_sender.generate_transactions(manager)
 
 
 def list_nodes(args):
@@ -31,16 +32,19 @@ def create_contract(args):
         node = manager.nodes[args.node]
     else:
         node = manager.get_random_node()
-    node.initialize()
-    contract = Contract.from_file(args.contract, contract_name=args.name)
-    transaction = transaction_generator.build_new_contract_transaction(node, contract)
-    node.create_contract(contract, transaction, wait=True)
+    transaction_sender.create_contract(manager, node, args.contract, args.name)
+
+
+def generate_contract_calls(args):
+    manager = _get_manager(args)
+    transaction_sender.generate_contract_calls(manager)
 
 
 def _get_manager(args):
     manager = NodeManager()
     manager.add_nodes_from_dir(args.chain_data)
     return manager
+
 
 def _get_miners(args):
     if args.miners:

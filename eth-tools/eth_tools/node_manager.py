@@ -13,6 +13,12 @@ class NodeContainer:
     def add(self, node):
         self.nodes.append(node)
 
+    def find(self, predicate) -> Node:
+        for node in self.nodes:
+            if predicate(node):
+                return node
+        raise ValueError("no node found")
+
     def __repr__(self):
         return "NodeContainer(nodes={0})".format(self.nodes)
 
@@ -72,5 +78,8 @@ class NodeManager:
                 node.name, node.address, reporter.get_balance(node.address)))
         print("-" * 90)
 
-    def get_random_node(self):
+    def get_random_node(self) -> Node:
         return random.choice(self.nodes)
+
+    def node_by_address(self, address: str) -> Node:
+        return self.nodes.find(lambda node: node.address == address)
