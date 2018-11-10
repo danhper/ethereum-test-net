@@ -25,9 +25,9 @@ class NodeContainer:
     def __getitem__(self, key):
         if isinstance(key, int):
             return self.nodes[key]
-        for w3 in self.nodes:
-            if w3.name == key:
-                return w3
+        for node in self.nodes:
+            if node.name == key:
+                return node
         raise KeyError(key)
 
 
@@ -61,7 +61,7 @@ class NodeManager:
 
     def stop_miners(self, miners):
         for miner in miners:
-            self.nodes[miner].w3.miner.stop()
+            self.nodes[miner].stop_mining()
 
     def print_balances(self):
         reporter = random.choice(self.nodes)

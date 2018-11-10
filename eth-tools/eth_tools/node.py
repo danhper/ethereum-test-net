@@ -36,7 +36,7 @@ class Node:
     def initialize(self):
         logging.info("initializing {0}".format(self.name))
         account = self.create_and_unlock_account()
-        self.miner.setEtherBase(account)
+        self.w3.miner.setEtherBase(account)
 
     def start_mining(self):
         logging.info("{0} starting to mine".format(self.name))

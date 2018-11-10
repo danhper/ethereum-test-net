@@ -25,6 +25,7 @@ class Contract:
     def __repr__(self):
         return "Contract(name='{0}')".format(self.name)
 
+    @lru_cache()
     def get_function_abi(self, name: str, raise_on_multiple=False):
         candidates = [f for f in self.abi if f["type"] == "function" and f.get("name") == name]
         if not candidates:
