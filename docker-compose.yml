@@ -95,6 +95,11 @@ services:
     #   - --log-file=/root/.ethereum/valgrind.log
     #   - --error-limit=no
     #   - /aleth/build/aleth/aleth
+    build:
+      context: ./aleth-instrumentation
+      args:
+        cflags: -fprofile-arcs -ftest-coverage --coverage -fsanitize=address -fsanitize-recover=address -pthread
+        cmake_flags: -DCMAKE_BUILD_TYPE=Debug -DHUNTER_STATUS_DEBUG=ON
     volumes:
       - *aleth_config
       - ${DATA_DIR}/instrumented_aleth_node1/ethereum:/root/.ethereum
