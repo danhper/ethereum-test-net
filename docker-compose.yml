@@ -100,6 +100,8 @@ services:
       args:
         cflags: -fprofile-arcs -ftest-coverage --coverage -fsanitize=address -fsanitize-recover=address -pthread
         cmake_flags: -DCMAKE_BUILD_TYPE=Debug -DHUNTER_STATUS_DEBUG=ON
+    environment:
+      - ASAN_OPTIONS=halt_on_error=0:color=never
     volumes:
       - *aleth_config
       - ${DATA_DIR}/instrumented_aleth_node1/ethereum:/root/.ethereum
