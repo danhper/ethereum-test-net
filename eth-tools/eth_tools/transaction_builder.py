@@ -17,29 +17,29 @@ from . import settings
 
 def build_send_ether_transaction(manager: NodeManager):
     node = manager.get_random_node()
-    estimated_gas = node.eth.estimateGas({"value": 1})
+    estimated_gas = node.eth.estimateGas({"value": 1, "from": node.address})
     estimated_cost = estimated_gas * node.eth.gasPrice
 
     # get a sender with money
     while True:
-        sender = manager.get_random_node()
-        if sender.wei_balance > estimated_cost * 2:
+        sender = manager.get_random_address()
+        if node.get_wei_balance(sender) > estimated_cost * 2:
             break
 
     # get a recipient who is not the sender
     recipient = sender
     while recipient == sender:
-        recipient = manager.get_random_node()
+        recipient = manager.get_random_address()
 
     # send between 10% and 40% of the balance (this is all made up)
     percentage_of_balance = Decimal(random.randint(10, 40)) / Decimal(100)
-    value = math.ceil(Decimal(sender.wei_balance) * percentage_of_balance)
+    value = math.ceil(Decimal(node.get_wei_balance(sender)) * percentage_of_balance)
     return {
-        "to": recipient.address,
-        "from": sender.address,
-        "nonce": sender.get_nonce(),
+        "to": recipient,
+        "from": sender,
+        "nonce": node.get_nonce(sender),
         "value": value,
-        "gasPrice": sender.get_gas_price(),
+        "gasPrice": node.get_gas_price(),
     }
 
 

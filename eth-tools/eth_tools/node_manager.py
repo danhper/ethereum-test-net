@@ -81,5 +81,9 @@ class NodeManager:
     def get_random_node(self) -> Node:
         return random.choice(self.nodes)
 
+    def get_random_address(self) -> Node:
+        node = random.choice(self.nodes)
+        return random.choice(node.addresses)
+
     def node_by_address(self, address: str) -> Node:
-        return self.nodes.find(lambda node: node.address == address)
+        return self.nodes.find(lambda node: address in node.addresses)

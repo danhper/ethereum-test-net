@@ -24,27 +24,26 @@ class Node:
     def __repr__(self):
         return "Node(name='{0}')".format(self.name)
 
-    def create_and_unlock_account(self):
-        if not self.w3.personal.listAccounts:
-            self.w3.personal.newAccount(settings.INSECURE_PASSPHRASE)
-        account = self.w3.personal.listAccounts[0]
-        # NOTE: aleth does not accept calls without duration
-        self.w3.personal.unlockAccount(account, settings.INSECURE_PASSPHRASE,
-                                       duration=settings.TEN_YEARS_IN_SECONDS)
-        return account
+    def create_and_unlock_accounts(self):
+        while len(self.addresses) < 2:
+            self.w3.geth.personal.newAccount(settings.INSECURE_PASSPHRASE)
+        for address in self.addresses:
+            # NOTE: aleth does not accept calls without duration
+            self.w3.geth.personal.unlockAccount(address, settings.INSECURE_PASSPHRASE, settings.TEN_YEARS_IN_SECONDS)
+        return self.addresses[0]
 
     def initialize(self):
-        logging.info("initializing {0}".format(self.name))
-        account = self.create_and_unlock_account()
-        self.w3.miner.setEtherBase(account)
+        logging.info("initializing %s", self.name)
+        account = self.create_and_unlock_accounts()
+        self.w3.geth.miner.set_etherbase(account)
 
     def start_mining(self):
-        logging.info("{0} starting to mine".format(self.name))
-        self.w3.miner.start(1)
+        logging.info("%s starting to mine", self.name)
+        self.w3.geth.miner.start(1)
 
     def stop_mining(self):
-        logging.info("{0} stopping to mine".format(self.name))
-        self.w3.miner.stop()
+        logging.info("%s stopping to mine", self.name)
+        self.w3.geth.miner.stop()
 
     def get_wei_balance(self, address):
         return self.w3.eth.getBalance(address)
@@ -62,7 +61,11 @@ class Node:
 
     @property
     def address(self):
-        return self.w3.personal.listAccounts[0]
+        return self.addresses[0]
+
+    @property
+    def addresses(self):
+        return self.w3.geth.personal.listAccounts()
 
     @classmethod
     def from_file(cls, name, filename):
@@ -70,8 +73,10 @@ class Node:
         provider = Web3.IPCProvider(filename, timeout=60 * 5)
         return cls(name, Web3(provider))
 
-    def get_nonce(self):
-        return self.eth.getTransactionCount(self.address)
+    def get_nonce(self, address=None):
+        if address is None:
+            address = self.address
+        return self.eth.getTransactionCount(address)
 
     def get_gas_price(self):
         # increase gas price if last transaction has not been mined yet
@@ -88,7 +93,7 @@ class Node:
                 self.last_transaction_block = self.w3.eth.blockNumber
             return result
         except ValueError as ex:
-            logging.error("failed to send transaction: {0} - {1}".format(ex, transaction))
+            logging.error("failed to send transaction: %s - %s", ex, transaction)
 
     def create_contract(self, contract: Contract, transaction: dict, wait=False, callback=None):
         transaction = transaction.copy()

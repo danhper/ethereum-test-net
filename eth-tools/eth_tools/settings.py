@@ -2,7 +2,7 @@ import os
 from os import path
 
 
-INSECURE_PASSPHRASE = "foobarbaz"
+INSECURE_PASSPHRASE = ""
 TEN_YEARS_IN_SECONDS = 3600 * 24 * 365 * 10
 MINERS = ["geth_node1", "aleth_node1"]
 
