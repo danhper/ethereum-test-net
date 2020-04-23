@@ -1,7 +1,7 @@
+import json
+
 from . import settings
-from . import transaction_builder
 from . import transaction_sender
-from .contract import Contract
 from .node_manager import NodeManager
 
 
@@ -38,6 +38,17 @@ def create_contract(args):
 def generate_contract_calls(args):
     manager = _get_manager(args)
     transaction_sender.generate_contract_calls(manager)
+
+
+def list_transactions(args):
+    manager = _get_manager(args)
+    node = manager.get_random_node()
+    result = list(node.list_all_transactions())
+    if args.output:
+        with open(args.output) as f:
+            json.dump(result, f)
+    else:
+        print(json.dumps(result))
 
 
 def _get_manager(args):

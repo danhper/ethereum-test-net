@@ -149,3 +149,13 @@ class Node:
                 break
             block = self.w3.eth.getBlock(block.parentHash)
         return accounts
+
+    def list_all_transactions(self):
+        block = self.w3.eth.getBlock("latest")
+        transactions = set()
+        while True:
+            transactions |= set(v.hex() for v in block.transactions)
+            if int(block.parentHash.hex(), 16) == 0:
+                break
+            block = self.w3.eth.getBlock(block.parentHash)
+        return transactions

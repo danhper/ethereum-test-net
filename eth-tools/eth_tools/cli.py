@@ -30,6 +30,9 @@ create_contract_parser.add_argument("--name", help="name of the contract. requir
                                                     "contracts exist in the same file")
 
 
+list_transactions_parser = subparsers.add_parser("list-transactions", help="list all the transaction ids")
+list_transactions_parser.add_argument("-o", "--output", help="result output file")
+
 def run():
     logging.basicConfig(level=logging.INFO)
 
